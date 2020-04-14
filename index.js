@@ -72,9 +72,9 @@ function readWorkbook(workbook) {
     let E = "E2";
     let F = "F2";
     let I = "I2";
+    let N = "N2";
     let O = "O2";
     let P = "P2";
-    let Q = "Q2";
     while (worksheet[i] != null) {
         console.log(" 处理" + i + "数据中...")
         let row_temp = [];
@@ -94,17 +94,17 @@ function readWorkbook(workbook) {
         }
         let toDayCardTimeStart = null;
         // 上班打卡时间
-        if (worksheet[O]) {
-            row_temp.push(worksheet[O].w);
-            toDayCardTimeStart = worksheet[O].w;
+        if (worksheet[N]) {
+            row_temp.push(worksheet[N].w);
+            toDayCardTimeStart = worksheet[N].w;
         } else {
             row_temp.push("");
         }
         let toDayCardTimeEnd = null;
         // 下班打卡时间
-        if (worksheet[P]) {
-            row_temp.push(worksheet[P].w);
-            toDayCardTimeEnd = worksheet[P].w;
+        if (worksheet[O]) {
+            row_temp.push(worksheet[O].w);
+            toDayCardTimeEnd = worksheet[O].w;
         } else {
             row_temp.push("");
         }
@@ -119,12 +119,12 @@ function readWorkbook(workbook) {
             TE = worksheet[E].w + " " + worksheet[I].w.split('-')[1];
         }
         let TE_ = null;
-        if (worksheet[Q].w.split(':').length == 2) {
-            TE_ = worksheet[E].w + " " + worksheet[Q].w;
+        if (worksheet[P].w.split(':').length == 2) {
+            TE_ = worksheet[E].w + " " + worksheet[P].w;
         }
 
         row_temp.push(calculateExtraWorkingTime(TS, TE, TE_, null, toDayCardTimeStart, toDayCardTimeEnd));
-        if (worksheet[Q].w.split(':').length == 2) {
+        if (worksheet[P].w.split(':').length == 2) {
             row_temp.push("是");
         }
         tempData.push(row_temp);
@@ -135,9 +135,9 @@ function readWorkbook(workbook) {
         E = "E" + j;
         F = "F" + j;
         I = "I" + j;
+        N = "N" + j;
         O = "O" + j;
         P = "P" + j;
-        Q = "Q" + j;
     }
 
     // TODO  拿到了原始数据，开始业务逻辑处理，处理完之后开始渲染处理后的表格
@@ -331,7 +331,7 @@ function calculateExtraWorkingTime(TS, TE, TE_, toDayIsWorker, toDayCardTimeStar
     if (TE == TS) { //今天非科室工作日，即周末  疑问，需要扣除半小时吃饭
         let result = countWorkOverTime(new Date(toDayCardTimeStart), new Date(toDayCardTimeEnd)).split('-');
         if (result[0]) { //首位是标记位，判断拿到的数据是不是正常,这里判断上下班时间是不是填反了
-            extraTime = parseFloat(result[5]) - 0.5 < 0 ? 0 : parseFloat(result[5]) - 0.5;
+            extraTime = parseFloat(result[5]) - 0.5 <= 0 ? 0 : parseFloat(result[5]) - 0.5;
         } else {
             console.log("数据异常，可能是上下班时间反向输入了!");
         }
@@ -359,7 +359,7 @@ function calculateExtraWorkingTime(TS, TE, TE_, toDayIsWorker, toDayCardTimeStar
                 if (isTime1MoreThanTime2(toDayCardTimeEnd, TE)) {
                     let tempResult = countWorkOverTime(new Date(TE), new Date(toDayCardTimeEnd)).split('-');
                     if (tempResult[0]) {
-                        extraTime += parseFloat(tempResult[5]) - 0.5 > 0 ? parseFloat(tempResult[5]) - 0.5 : 0;//下午加班时间
+                        extraTime += parseFloat(tempResult[5]) - 0.5 >= 0 ? parseFloat(tempResult[5]) - 0.5 : 0;//下午加班时间
                     }
                 }
 
@@ -387,7 +387,7 @@ function calculateExtraWorkingTime(TS, TE, TE_, toDayIsWorker, toDayCardTimeStar
             if (isTime1MoreThanTime2(toDayCardTimeEnd, TE)) {
                 let tempResult = countWorkOverTime(new Date(TE), new Date(toDayCardTimeEnd)).split('-');
                 if (tempResult[0]) {
-                    extraTime += parseFloat(tempResult[5]) - 1 > 0 ? parseFloat(tempResult[5]) - 1 : 0;//下午加班时间
+                    extraTime += parseFloat(tempResult[5]) - 1 >= 0 ? parseFloat(tempResult[5]) : 0;//下午加班时间
                 }
             }
         } else {
